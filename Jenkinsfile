@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-IMAGE_NAME = "yousseftabbel/youssef-alpine:latest"    }
+IMAGE_NAME = "yousseftabbel/yousseftabbel/youssef-alpine"    }
 
     stages {
 
