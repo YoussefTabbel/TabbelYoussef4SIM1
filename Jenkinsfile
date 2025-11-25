@@ -6,9 +6,8 @@ pipeline {
     }
 
     environment {
-        DOCKERHUB_USER = 'yousseftabbel
-'           
-        IMAGE_NAME = 'youssef-alpine'    // 👉 change if needed
+        DOCKERHUB_USER = 'yousseftabbel'           
+        IMAGE_NAME = 'youssef-alpine'   
     }
 
     stages {
