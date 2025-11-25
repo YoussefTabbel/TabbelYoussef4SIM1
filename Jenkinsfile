@@ -3,7 +3,8 @@ pipeline {
 
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-creds')
-IMAGE_NAME = "yousseftabbel/yousseftabbel/youssef-alpine"    }
+        IMAGE_NAME = "yousseftabbel/youssef-alpine:latest"
+    }
 
     stages {
 
@@ -21,25 +22,19 @@ IMAGE_NAME = "yousseftabbel/yousseftabbel/youssef-alpine"    }
 
         stage('Build Docker Image') {
             steps {
-                sh """
-                    docker build -t ${IMAGE_NAME} .
-                """
+                sh "docker build -t ${IMAGE_NAME} ."
             }
         }
 
         stage('Login to Docker Hub') {
             steps {
-                sh """
-                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
-                """
+                sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                sh """
-                    docker push ${IMAGE_NAME}
-                """
+                sh "docker push ${IMAGE_NAME}"
             }
         }
     }
