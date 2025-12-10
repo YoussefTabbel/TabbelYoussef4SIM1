@@ -13,31 +13,45 @@ pipeline {
 
     stages {
 
+        /* =======================
+           CHECKOUT GIT
+        ======================= */
         stage('Checkout') {
             steps {
                 git branch: 'main', url: 'https://github.com/YoussefTabbel/TabbelYoussef4SIM1.git'
             }
         }
 
+        /* =======================
+           MAVEN BUILD
+        ======================= */
         stage('Maven Build') {
             steps {
                 sh 'mvn clean install -DskipTests'
             }
         }
 
+        /* =======================
+           SONARQUBE ANALYSIS (FIXED)
+        ======================= */
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=student-management \
-                        -Dsonar.host.url=http://192.168.98.144:9000 \
-                        -Dsonar.login=$SONARQUBE_ENV
-                    """
+                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                            mvn sonar:sonar \
+                            -Dsonar.projectKey=student-management \
+                            -Dsonar.host.url=http://192.168.98.144:9000 \
+                            -Dsonar.login=$SONAR_TOKEN
+                        """
+                    }
                 }
             }
         }
 
+        /* =======================
+           DOCKER BUILD
+        ======================= */
         stage('Build Docker Image') {
             steps {
                 sh """
@@ -46,6 +60,9 @@ pipeline {
             }
         }
 
+        /* =======================
+           DOCKER LOGIN
+        ======================= */
         stage('Docker Login') {
             steps {
                 withCredentials([usernamePassword(
@@ -60,12 +77,18 @@ pipeline {
             }
         }
 
+        /* =======================
+           DOCKER PUSH
+        ======================= */
         stage('Docker Push') {
             steps {
                 sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
             }
         }
 
+        /* =======================
+           DEPLOY TO KUBERNETES
+        ======================= */
         stage('Deploy to Kubernetes') {
             steps {
                 sh """
@@ -77,6 +100,9 @@ pipeline {
         }
     }
 
+    /* =======================
+       POST ACTIONS CLEANUP
+    ======================= */
     post {
         always {
             sh 'docker system prune -f'
