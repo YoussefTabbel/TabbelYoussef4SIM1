@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: spring-config
+  namespace: devops
+data:
+  SPRING_DATASOURCE_URL: "jdbc:mysql://mysql-service:3306/springdb"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: spring-secret
+  namespace: devops
+type: Opaque
+data:
+  SPRING_DATASOURCE_USERNAME: cm9vdA==
+  SPRING_DATASOURCE_PASSWORD: cm9vdA==
