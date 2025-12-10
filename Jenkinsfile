@@ -1,15 +1,14 @@
 pipeline {
     agent any
 
-    
-
     triggers {
         githubPush()
     }
 
     environment {
         DOCKERHUB_USER = 'yousseftabbel'
-        IMAGE_NAME = 'youssef-alpine'
+        IMAGE_NAME = 'myapp'
+        K8S_NAMESPACE = 'devops'
     }
 
     stages {
@@ -29,12 +28,12 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh '''
+                    sh """
                         mvn sonar:sonar \
                         -Dsonar.projectKey=student-management \
                         -Dsonar.host.url=http://192.168.98.144:9000 \
                         -Dsonar.login=$SONARQUBE_ENV
-                    '''
+                    """
                 }
             }
         }
@@ -64,6 +63,16 @@ pipeline {
         stage('Docker Push') {
             steps {
                 sh "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:latest"
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh """
+                    kubectl apply -f mysql-deployment.yaml -n ${K8S_NAMESPACE}
+                    kubectl apply -f spring-deployment.yaml -n ${K8S_NAMESPACE}
+                    kubectl get pods -n ${K8S_NAMESPACE}
+                """
             }
         }
     }
