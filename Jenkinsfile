@@ -24,19 +24,6 @@ pipeline {
                 sh 'mvn clean install -DskipTests'
             }
         }
-/*
-        stage('SonarQube Analysis') {
-            steps {
-                withSonarQubeEnv('SonarQube') {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=student-management \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_AUTH_TOKEN
-                    """
-                }
-            }
-        }*/
 
         stage('Build Docker Image') {
             steps {
@@ -66,6 +53,7 @@ pipeline {
             steps {
                 sh """
                     kubectl apply -f mysql-deployment.yaml -n devops
+                    kubectl apply -f spring-config.yaml -n devops
                     kubectl apply -f spring-deployment.yaml -n devops
                 """
             }
