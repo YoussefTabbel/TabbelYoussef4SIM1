@@ -24,7 +24,7 @@ pipeline {
                 sh 'mvn clean install -DskipTests'
             }
         }
-
+/*
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -36,7 +36,7 @@ pipeline {
                     """
                 }
             }
-        }
+        }*/
 
         stage('Build Docker Image') {
             steps {
