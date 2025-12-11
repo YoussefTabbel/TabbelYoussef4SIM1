@@ -33,12 +33,8 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-creds',
-                    usernameVariable: 'USER',
-                    passwordVariable: 'PASS'
-                )]) {
-                    sh 'echo "$PASS" | docker login -u "$USER" --password-stdin'
+                withCredentials([string(credentialsId: 'dockerhub-creds', variable: 'PASS')]) {
+                    sh 'echo $PASS | docker login -u ${DOCKERHUB_USER} --password-stdin'
                 }
             }
         }
@@ -49,19 +45,12 @@ pipeline {
             }
         }
 
-    stage('Deploy on Kubernetes') {
-    steps {
-        withEnv(['KUBECONFIG=/var/lib/jenkins/.kube/config']) {
-            sh """
-                kubectl apply --validate=false -f mysql-deployment.yaml -n devops
-                kubectl apply --validate=false -f spring-config.yaml -n devops
-                kubectl apply --validate=false -f spring-deployment.yaml -n devops
-            """
+        stage('Deploy on Kubernetes') {
+            steps {
+                // Ajout de l'option pour ignorer la vérification TLS
+                sh "kubectl apply --insecure-skip-tls-verify -f mysql-deployment.yaml -n devops"
+            }
         }
-    }
-}
-
-
     }
 
     post {
