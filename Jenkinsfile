@@ -8,6 +8,7 @@ pipeline {
     environment {
         DOCKERHUB_USER = 'yousseftabbel'
         IMAGE_NAME = 'myapp'
+        KUBECONFIG = '/var/lib/jenkins/.kube/config' // <-- chemin vers kubeconfig de Minikube
     }
 
     stages {
@@ -33,8 +34,12 @@ pipeline {
 
         stage('Docker Login') {
             steps {
-                withCredentials([string(credentialsId: 'dockerhub-creds', variable: 'PASS')]) {
-                    sh 'echo $PASS | docker login -u ${DOCKERHUB_USER} --password-stdin'
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-creds',
+                    usernameVariable: 'USER',
+                    passwordVariable: 'PASS'
+                )]) {
+                    sh 'echo "$PASS" | docker login -u "$USER" --password-stdin'
                 }
             }
         }
@@ -47,8 +52,11 @@ pipeline {
 
         stage('Deploy on Kubernetes') {
             steps {
-                // Ajout de l'option pour ignorer la vérification TLS
-                sh "kubectl apply --insecure-skip-tls-verify -f mysql-deployment.yaml -n devops"
+                sh """
+                    kubectl apply -f mysql-deployment.yaml -n devops
+                    kubectl apply -f spring-config.yaml -n devops
+                    kubectl apply -f spring-deployment.yaml -n devops
+                """
             }
         }
     }
