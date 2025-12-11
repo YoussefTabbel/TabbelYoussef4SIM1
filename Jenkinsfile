@@ -65,8 +65,8 @@ pipeline {
         stage('Deploy on Kubernetes') {
             steps {
                 sh """
-                    kubectl apply -f k8s/mysql-deployment.yaml -n devops
-                    kubectl apply -f k8s/spring-deployment.yaml -n devops
+                    kubectl apply -f mysql-deployment.yaml -n devops
+                    kubectl apply -f spring-deployment.yaml -n devops
                 """
             }
         }
