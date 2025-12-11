@@ -49,15 +49,18 @@ pipeline {
             }
         }
 
-        stage('Deploy on Kubernetes') {
-            steps {
-                sh """
-                    kubectl apply -f mysql-deployment.yaml -n devops
-                    kubectl apply -f spring-config.yaml -n devops
-                    kubectl apply -f spring-deployment.yaml -n devops
-                """
-            }
+       stage('Deploy on Kubernetes') {
+    steps {
+        withEnv(['KUBECONFIG=/var/lib/jenkins/.kube/config']) {
+            sh """
+                kubectl apply -f mysql-deployment.yaml -n devops
+                kubectl apply -f spring-config.yaml -n devops
+                kubectl apply -f spring-deployment.yaml -n devops
+            """
         }
+    }
+}
+
     }
 
     post {
