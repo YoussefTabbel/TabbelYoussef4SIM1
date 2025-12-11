@@ -7,7 +7,7 @@ pipeline {
 
     environment {
         DOCKERHUB_USER = 'yousseftabbel'
-        IMAGE_NAME = 'youssef-alpine'
+        IMAGE_NAME = 'myapp'
     }
 
     stages {
@@ -31,8 +31,8 @@ pipeline {
                     sh """
                         mvn sonar:sonar \
                         -Dsonar.projectKey=student-management \
-                        -Dsonar.host.url=http://192.168.98.144:9000 \
-                        -Dsonar.login=$SONARQUBE_ENV
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN
                     """
                 }
             }
@@ -51,9 +51,7 @@ pipeline {
                     usernameVariable: 'USER',
                     passwordVariable: 'PASS'
                 )]) {
-                    sh """
-                        echo "$PASS" | docker login -u "$USER" --password-stdin
-                    """
+                    sh 'echo "$PASS" | docker login -u "$USER" --password-stdin'
                 }
             }
         }
